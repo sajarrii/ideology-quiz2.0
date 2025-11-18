@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>多元意识形态测试（娱乐向）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 二维码库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        h2 {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 6px;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            gap: 8px;
+        }
+        button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button.primary {
+            background: #007aff;
+            color: #fff;
+        }
+        button.secondary {
+            background: #e0e0e0;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .progress {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        .bar-wrapper {
+            background: #e0e0e0;
+            border-radius: 999px;
+            overflow: hidden;
+            height: 6px;
+            margin-bottom: 10px;
+        }
+        .bar {
+            height: 100%;
+            width: 0%;
+            background: #007aff;
+            transition: width 0.2s ease;
+        }
+        .small-hint {
+            font-size: 12px;
+            color: #777;
+            margin-top: 4px;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .mode-buttons button {
+            flex: 1;
+            min-width: 80px;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .result-section {
+            margin-top: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        table th {
+            background: #f0f0f0;
+        }
+        .axis-summary-item {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .axis-label-strong {
+            font-weight: 700;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+        }
+        details {
+            margin-top: 4px;
+            font-size: 13px;
+        }
+        .qrcode-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #qrcode {
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            display: inline-block;
+        }
+        .disclaimer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>多元意识形态测试（娱乐向）</h1>
+    <p style="text-align:center;font-size:13px;color:#666;">
+        本测试仅供娱乐和政治学光谱参考，不构成对任何现实立场的评价或鼓励。<br>
+        题目较多，建议找个空闲时间慢慢做。
+    </p>
+
+    <div class="card">
+        <h2>1. 选择题目数量</h2>
+        <p style="font-size:14px;">
+            题库共 50 道基础题。选择 75 / 100 题模式时，会对部分题目进行重复提问，用来加强权重统计。
+        </p>
+        <div class="mode-buttons">
+            <button class="primary" onclick="startQuiz(50)">标准模式 50 题</button>
+            <button class="secondary" onclick="startQuiz(75)">加强模式 75 题</button>
+            <button class="secondary" onclick="startQuiz(100)">硬核模式 100 题</button>
+        </div>
+        <p class="small-hint">注意：切换模式会重置当前作答。</p>
+    </div>
+
+    <div class="card" id="quiz-card" style="display:none;">
+        <div class="progress">
+            进度：<span id="progress-text">0 / 0</span>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar" id="progress-bar"></div>
+        </div>
+
+        <div id="quiz-area">
+            <div class="question-text" id="question-text"></div>
+            <div class="options" id="options"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="secondary" id="prev-btn">上一题</button>
+            <button class="primary" id="next-btn">下一题</button>
+        </div>
+        <p class="small-hint">每题只有一个选项。答完最后一题点“提交测试”查看详细光谱结果和权重表。</p>
+    </div>
+
+    <div class="card" id="result-card" style="display:none;">
+        <div class="result-title" id="result-title">测试结果光谱</div>
+        <div class="result-section" id="axis-summary"></div>
+
+        <h3 style="margin-top:12px;">对立主义权重表（你的相对倾向）</h3>
+        <div id="weights-table"></div>
+
+        <div class="disclaimer">
+            提醒：下面的“主义”和历史人物，只是帮助你理解这些维度在政治学中的典型形态，<br>
+            并不代表对这些思想或人物的认同、赞同或鼓励。
+        </div>
+
+        <h3 style="margin-top:12px;">一些相关主义及典型代表（历史 / 理论视角）</h3>
+        <div id="ideology-info">
+            <details>
+                <summary>社会主义 / 社会民主主义</summary>
+                <p>强调经济平等、社会保障和国家在再分配中的角色。现代社会民主主义一般主张在民主制度下，通过税收和福利实现“资本主义+高福利”。</p>
+                <p>典型人物（历史与理论）：马克思、恩格斯（经典社会主义理论）；伯恩斯坦、威利·勃兰特（社会民主主义）；北欧多国的社会民主党领袖等。</p>
+            </details>
+            <details>
+                <summary>古典自由主义 / 市场自由主义</summary>
+                <p>强调私有财产、自由市场、法治和有限政府。认为只要尊重契约和产权，社会繁荣会自然涌现。</p>
+                <p>典型人物：亚当·斯密、约翰·洛克、约翰·斯图亚特·密尔、弗里德里希·哈耶克等。</p>
+            </details>
+            <details>
+                <summary>自由意志主义 / 无政府主义光谱</summary>
+                <p>强调个人自由至上，极端形式下主张政府极小甚至取消国家机器，以自愿契约和自治社群替代。</p>
+                <p>典型人物：罗伯特·诺齐克、默里·罗思巴德（自由意志主义）；巴枯宁、克鲁泡特金（无政府主义传统）。</p>
+            </details>
+            <details>
+                <summary>马克思列宁主义 / 革命左翼</summary>
+                <p>通常强调先锋党、阶级斗争、计划经济以及通过革命实现社会变革。历史上有非常复杂且争议极大的实践经验。</p>
+                <p>典型人物：列宁、托洛茨基、毛泽东（作为历史与政治学研究对象）。</p>
+            </details>
+            <details>
+                <summary>修正主义（马克思主义传统内部的修正派）</summary>
+                <p>在经典马克思主义基础上，主张通过议会、渐进改革而不是全面革命来实现社会主义，被称为“修正主义”。</p>
+                <p>典型人物：爱德华·伯恩斯坦等。</p>
+            </details>
+            <details>
+                <summary>保守主义 / 传统主义</summary>
+                <p>强调传统、秩序、宗教或历史延续性，对激进变革保持怀疑态度，更关心社会稳定和道德秩序。</p>
+                <p>典型人物：埃德蒙·伯克、托克维尔等。</p>
+            </details>
+            <details>
+                <summary>民族主义 / 极端民族主义（含历史上的法西斯、纳粹等极端形态）</summary>
+                <p>一般民族主义强调国家认同、主权与统一；极端民族主义则可能走向排外、极端暴力乃至种族主义。</p>
+                <p>历史上的法西斯主义和纳粹主义，被广泛视为极端民族主义与极权主义的结合，并因其发动侵略战争和大规模反人类罪行而遭到世界各国强烈谴责。</p>
+                <p>典型人物（作为负面历史案例与反面教材）：墨索里尼、弗朗哥等法西斯领导人；纳粹德国的希特勒等。</p>
+            </details>
+            <details>
+                <summary>全球主义 / 国际主义 / 自由国际秩序</summary>
+                <p>强调国家之间的合作、国际组织、贸易自由化，以及跨国规则对国家行为的约束。</p>
+                <p>典型人物：伍德罗·威尔逊（“国际联盟”构想）、一些自由国际主义学者与政治家等。</p>
+            </details>
+            <details>
+                <summary>社群主义 / 集体主义取向</summary>
+                <p>强调共同体、家庭、民族或阶级等集体的价值，个人应当在一定程度上服从整体目标。</p>
+                <p>典型人物：麦金太尔、查尔斯·泰勒、迈克尔·桑德尔（社群主义）；某些现实政治传统也带有强集体主义色彩。</p>
+            </details>
+            <details>
+                <summary>技术官僚主义 / 专家治理（本测试只部分涉及）</summary>
+                <p>强调由技术官僚、专家和专业机构掌握较大决策权，认为他们比普通选民更理性、信息更多。</p>
+                <p>一些政治学研究会把某些“绩效合法性”很强的政权（例如新加坡部分治理经验）放在技术官僚讨论的语境下。</p>
+            </details>
+        </div>
+    </div>
+
+    <div class="card qrcode-section">
+        <h3>分享给朋友做一做</h3>
+        <div id="qrcode"></div>
+        <div class="small-hint">
+            这个二维码指向当前页面地址。把页面放到 GitHub Pages 或其他静态空间后，朋友扫一扫就能直接打开测试。
+        </div>
+    </div>
+
+<script>
+// ======================= 题库定义 ===========================
+// axis: 'econ' 经济左 vs 右
+//       'auth' 威权 vs 自由
+//       'nat'  民族 vs 全球
+//       'trad' 保守 vs 进步
+//       'coll' 集体 vs 个人
+//
+// 约定：
+// econ 轴：A/B = 经济左，C/D = 经济右
+// 其他轴：A/B = 右侧(威权/民族/保守/集体)，C/D = 左侧(自由/全球/进步/个人)
+
+const baseQuestions = [
+    // ===== econ 经济向：1-10 =====
+    {
+        q: "1. 你理想中的税收制度是？",
+        axis: "econ",
+        options: {
+            A: "对富人征收极高累进税，大规模再分配",
+            B: "提高累进税和福利，让社会更平等",
+            C: "维持中等税收，保障基本服务即可",
+            D: "尽量降低税收，福利交给市场和慈善"
+        }
+    },
+    {
+        q: "2. 对于国企与私企的关系，你更认同？",
+        axis: "econ",
+        options: {
+            A: "关键行业全部应国有，防止资本垄断",
+            B: "部分关键行业国有，其余市场竞争",
+            C: "多数领域由私企主导，国企只保底",
+            D: "全面私有化最有效率，政府少插手"
+        }
+    },
+    {
+        q: "3. 最低工资制度应该？",
+        axis: "econ",
+        options: {
+            A: "大幅提高，保障体面生活",
+            B: "维持或略涨，兼顾企业负担",
+            C: "可适度放宽，让市场决定",
+            D: "应当取消，工资完全由双方协商"
+        }
+    },
+    {
+        q: "4. 对大企业的态度？",
+        axis: "econ",
+        options: {
+            A: "天然具有剥削性，需要强力限制甚至公有化",
+            B: "必须严格监管与反垄断",
+            C: "必要时监管，但不要过度约束创新",
+            D: "大企业代表效率与成功，应尽量放开"
+        }
+    },
+    {
+        q: "5. 社会福利的边界在你心中是：",
+        axis: "econ",
+        options: {
+            A: "从摇篮到坟墓都应由国家保障",
+            B: "国家提供基本保障，其余靠个人努力",
+            C: "只保障极少数弱势群体即可",
+            D: "不需要福利制度，个人应完全自负"
+        }
+    },
+    {
+        q: "6. 免费教育的范围？",
+        axis: "econ",
+        options: {
+            A: "至少到大学都应基本免费",
+            B: "义务教育免费，高教适度收费",
+            C: "只有基础教育免费即可",
+            D: "教育主要交给市场，自己承担"
+        }
+    },
+    {
+        q: "7. 经济危机时，政府应该？",
+        axis: "econ",
+        options: {
+            A: "大规模刺激和救助，保证就业与收入",
+            B: "一定程度刺激，避免长期大衰退",
+            C: "谨慎干预，避免破坏市场机制",
+            D: "几乎不干预，让市场自行出清"
+        }
+    },
+    {
+        q: "8. 贫富差距在多大程度上是问题？",
+        axis: "econ",
+        options: {
+            A: "极大问题，应通过强力政策压缩差距",
+            B: "需要调节，不能任其扩大",
+            C: "一定差距可以接受",
+            D: "差距是激励的一部分，不必刻意抹平"
+        }
+    },
+    {
+        q: "9. 你怎么看待“躺平税”（对资产征收高税以资助年轻人）？",
+        axis: "econ",
+        options: {
+            A: "非常赞同，应大规模征收",
+            B: "可以适度尝试，注意副作用",
+            C: "不太赞同，容易打击投资",
+            D: "完全反对，严重侵犯财产权"
+        }
+    },
+    {
+        q: "10. 在你心中，企业家更像是：",
+        axis: "econ",
+        options: {
+            A: "剥削劳动者、攫取剩余价值的人",
+            B: "需要被规范的利益集团",
+            C: "承担风险、推动创新的人",
+            D: "社会中最应该被奖励和保护的一群人"
+        }
+    },
+
+    // ===== auth 威权 vs 自由：11-20 =====
+    {
+        q: "11. 有严重社会动荡时，政府可以大幅限制公民自由吗？",
+        axis: "auth",
+        options: {
+            A: "可以，秩序优先于自由",
+            B: "在特殊情况下可以加强管控",
+            C: "应非常谨慎，尽量保持基本自由",
+            D: "不应以动荡为由侵犯公民自由"
+        }
+    },
+    {
+        q: "12. 你更希望的国家形象是？",
+        axis: "auth",
+        options: {
+            A: "强人领导、统一意志的铁血国家",
+            B: "权威明确、但仍有基本制衡",
+            C: "权力分散、各方博弈的多元体制",
+            D: "权力极度分散，地方和社群高度自治"
+        }
+    },
+    {
+        q: "13. 对“为安全可以加强监控（摄像头、大数据等）”的看法？",
+        axis: "auth",
+        options: {
+            A: "完全同意，安全最重要",
+            B: "在威胁明显时可以接受",
+            C: "比较担心滥用，需要限制",
+            D: "坚决反对大规模监控"
+        }
+    },
+    {
+        q: "14. 对异见人士、反对派的存在，你觉得？",
+        axis: "auth",
+        options: {
+            A: "容易扰乱秩序，应严厉打击",
+            B: "可以存在，但要在严格框架下",
+            C: "是健康社会的一部分",
+            D: "越多越好，有利于分散权力"
+        }
+    },
+    {
+        q: "15. 军队在政治中的角色？",
+        axis: "auth",
+        options: {
+            A: "强军政一体有利于稳定国家",
+            B: "军队服从文官，必要时可介入稳定",
+            C: "军队必须绝对中立、不干预政治",
+            D: "最好削弱常备军，防止集权"
+        }
+    },
+    {
+        q: "16. 对严刑峻法（重刑、宽泛的罪名）的态度：",
+        axis: "auth",
+        options: {
+            A: "赞成，震慑力越大越好",
+            B: "在极端案件中可以考虑",
+            C: "多数情况下应避免重刑",
+            D: "应尽量缩小刑法范围与刑期"
+        }
+    },
+    {
+        q: "17. 校园或公司管理风格你更倾向？",
+        axis: "auth",
+        options: {
+            A: "严格服从型，命令清晰、奖惩分明",
+            B: "以权威为主，适当听取意见",
+            C: "民主讨论，管理者更多是协调者",
+            D: "高度自治，几乎没有强制规则"
+        }
+    },
+    {
+        q: "18. 你如何看待“政治冷感”与“不关心公共事务”？",
+        axis: "auth",
+        options: {
+            A: "普通人少参与政治也挺好，省得添乱",
+            B: "大部分人可以只关心生活",
+            C: "希望更多人参与公共议题讨论",
+            D: "强烈希望去中心化、自组织的公共参与"
+        }
+    },
+    {
+        q: "19. 对“国家统一宣传口径”的态度？",
+        axis: "auth",
+        options: {
+            A: "非常重要，有利于凝聚力量",
+            B: "在危机时刻是必要的",
+            C: "平时应允许多种声音共存",
+            D: "任何统一口径都值得怀疑"
+        }
+    },
+    {
+        q: "20. 在你心中，法律应该更像？",
+        axis: "auth",
+        options: {
+            A: "统治工具，维护国家与权威优先",
+            B: "秩序与权利之间的折中",
+            C: "公民权利的保障底线",
+            D: "限制一切权力的“防火墙”"
+        }
+    },
+
+    // ===== nat 民族 vs 全球：21-30 =====
+    {
+        q: "21. 对移民与难民的总体态度？",
+        axis: "nat",
+        options: {
+            A: "应严格限制，优先本国人利益",
+            B: "可以少量吸纳，但要严格筛选",
+            C: "在可承受范围内应当接纳",
+            D: "应尽量开放，推动全球自由流动"
+        }
+    },
+    {
+        q: "22. 你更认同哪种身份？",
+        axis: "nat",
+        options: {
+            A: "首先是某个国家/民族的一员",
+            B: "主要是本国人，同时有全球视野",
+            C: "既是本国人也是世界公民",
+            D: "更偏向“地球人”或世界公民身份"
+        }
+    },
+    {
+        q: "23. 对超国家组织（例如联合国、欧盟一类）的看法？",
+        axis: "nat",
+        options: {
+            A: "容易损害国家主权，需要警惕",
+            B: "可以合作，但必须牢牢守住主权",
+            C: "总体有利于和平与合作",
+            D: "应当赋予更多权力，走向世界政府"
+        }
+    },
+    {
+        q: "24. 在文化上，你更在意？",
+        axis: "nat",
+        options: {
+            A: "保持本民族文化的纯粹与优越",
+            B: "以本国文化为主，适度吸收外来",
+            C: "文化互相交流、碰撞与融合",
+            D: "文化应当跨国共享且自由流通"
+        }
+    },
+    {
+        q: "25. 对“本国优先”（economic nationalism）的态度：",
+        axis: "nat",
+        options: {
+            A: "绝对赞同，本国优先是天经地义",
+            B: "总体赞同，但也要兼顾合作",
+            C: "可以理解，但不应过于极端",
+            D: "更认同全球合作与互利共赢"
+        }
+    },
+    {
+        q: "26. 如果本国与国际人权标准发生冲突，你更倾向？",
+        axis: "nat",
+        options: {
+            A: "无条件站在本国立场",
+            B: "大体站在本国，但可适度妥协",
+            C: "希望在两者之间寻找平衡",
+            D: "更倾向遵守普世人权与国际规范"
+        }
+    },
+    {
+        q: "27. 对跨国公司与全球资本的态度？",
+        axis: "nat",
+        options: {
+            A: "应强力限制，避免侵蚀国家主权",
+            B: "要严加监管，防止过度影响",
+            C: "在规则框架下可以合作",
+            D: "总体上有利于全球发展与交流"
+        }
+    },
+    {
+        q: "28. 你对“世界公民运动”等主张：",
+        axis: "nat",
+        options: {
+            A: "危险且不切实际",
+            B: "有一些好的想法，但不能照搬",
+            C: "理念不错，可以逐步推进",
+            D: "非常赞同，人类应超越国界"
+        }
+    },
+    {
+        q: "29. 对于体育比赛中极端民族情绪（比如极端球迷）的看法？",
+        axis: "nat",
+        options: {
+            A: "很正常甚至值得鼓励",
+            B: "情绪可以理解，但要注意边界",
+            C: "有时会过头，需要引导",
+            D: "过度民族情绪让我不适"
+        }
+    },
+    {
+        q: "30. 如果有一天出现功能很强的“世界政府”构想，你会？",
+        axis: "nat",
+        options: {
+            A: "坚决反对，这是噩梦",
+            B: "高度怀疑，不大可能接受",
+            C: "视具体制度而定，可以讨论",
+            D: "如果能保障权利与和平，会认真支持"
+        }
+    },
+
+    // ===== trad 保守 vs 进步：31-40 =====
+    {
+        q: "31. 对传统家庭结构（异性婚姻、父权等）的态度？",
+        axis: "trad",
+        options: {
+            A: "应当坚守，这是社会基石",
+            B: "总体认同，但可以适度调整",
+            C: "可以多元化，只要自愿即可",
+            D: "应积极打破固有结构，鼓励多样形式"
+        }
+    },
+    {
+        q: "32. 对性少数群体（LGBTQ+）的权利诉求？",
+        axis: "trad",
+        options: {
+            A: "不应鼓励，更不应合法化特殊权利",
+            B: "可以尊重，但不宜过度宣传",
+            C: "应保障其平等权利",
+            D: "应积极推动全面平权与社会支持"
+        }
+    },
+    {
+        q: "33. 对“政治正确”（例如反歧视用语规范）的总体看法？",
+        axis: "trad",
+        options: {
+            A: "非常反感，是言论审查",
+            B: "部分合理，但容易走极端",
+            C: "总体必要，有助于保护弱势群体",
+            D: "即使有点过头，也是一种社会进步"
+        }
+    },
+    {
+        q: "34. 对性教育与生理教育进入中小学课堂？",
+        axis: "trad",
+        options: {
+            A: "坚决反对，会腐蚀未成年人",
+            B: "可以少量，但要非常保守",
+            C: "应该系统科学地进行",
+            D: "应更开放、更早期、更全面"
+        }
+    },
+    {
+        q: "35. 对宗教在社会中的影响力，你更倾向？",
+        axis: "trad",
+        options: {
+            A: "宗教道德应当成为社会主心骨",
+            B: "宗教在私人领域很重要",
+            C: "宗教应与公共政策适度分离",
+            D: "应尽量减弱宗教对公共领域的影响"
+        }
+    },
+    {
+        q: "36. 对“取消文化”（对争议言论者进行抵制）的态度？",
+        axis: "trad",
+        options: {
+            A: "很多时候是必要惩戒",
+            B: "有时合理，但容易被滥用",
+            C: "比较反感，容易变成网暴",
+            D: "强烈反对，一切应回到言论自由"
+        }
+    },
+    {
+        q: "37. 当新的社会运动（例如女权、环保、反种族歧视）兴起时，你通常？",
+        axis: "trad",
+        options: {
+            A: "本能怀疑，担心破坏秩序",
+            B: "观望，视行动方式而定",
+            C: "大多持支持态度",
+            D: "倾向积极参与和声援"
+        }
+    },
+    {
+        q: "38. 对“废除死刑”的态度？",
+        axis: "trad",
+        options: {
+            A: "坚决反对，死刑很必要",
+            B: "在极端恶性案件中保留",
+            C: "可以逐步缩小适用范围",
+            D: "应最终完全废除"
+        }
+    },
+    {
+        q: "39. 对传统礼仪（尊老、辈分、称呼等）的看法？",
+        axis: "trad",
+        options: {
+            A: "必须严格遵守，是文明的体现",
+            B: "基本遵守，可以有些松动",
+            C: "尊重但不必太拘泥",
+            D: "能不讲就不讲，平等更重要"
+        }
+    },
+    {
+        q: "40. 在你看来，“进步”和“稳定”的关系更像？",
+        axis: "trad",
+        options: {
+            A: "宁要稳定不要进步",
+            B: "进步可以有，但稳定更优先",
+            C: "两者应平衡",
+            D: "没有足够进步，稳定没意义"
+        }
+    },
+
+    // ===== coll 集体 vs 个人：41-50 =====
+    {
+        q: "41. 如果集体利益与个人利益发生明显冲突，你更倾向？",
+        axis: "coll",
+        options: {
+            A: "个人应当服从集体",
+            B: "在重大问题上以集体为重",
+            C: "应尽量协商，保护个人底线",
+            D: "个人有权选择自己道路，即便与集体冲突"
+        }
+    },
+    {
+        q: "42. 你理想中的社会更像是？",
+        axis: "coll",
+        options: {
+            A: "高度组织化、目标统一的整体",
+            B: "有较强共同价值观的共同体",
+            C: "多元社群并存的社会",
+            D: "很多松散个体组成的网络"
+        }
+    },
+    {
+        q: "43. 对“服从命令”这件事，你的直觉是？",
+        axis: "coll",
+        options: {
+            A: "天经地义",
+            B: "大多数场景里是必要的",
+            C: "可以服从，但也要质疑",
+            D: "一切命令都值得怀疑"
+        }
+    },
+    {
+        q: "44. 如果一个人选择“躺平、不工作”，但不违法，你觉得？",
+        axis: "coll",
+        options: {
+            A: "对集体不负责任，应当被强烈批评",
+            B: "不鼓励，应有一定社会压力",
+            C: "这是个人选择，旁人少干涉",
+            D: "如果制度允许，是一种正当生活方式"
+        }
+    },
+    {
+        q: "45. 对“为集体目标牺牲一代人”的说法，你？",
+        axis: "coll",
+        options: {
+            A: "可以接受，历史发展需要牺牲",
+            B: "在极端情况下可以理解",
+            C: "非常慎重，尽量避免",
+            D: "原则上不能接受这种逻辑"
+        }
+    },
+    {
+        q: "46. 对单位、班级“集体荣誉感”的态度？",
+        axis: "coll",
+        options: {
+            A: "非常重要，应当被大力强化",
+            B: "在一定程度上有积极意义",
+            C: "有点用，但也容易异化",
+            D: "不太在意这些，个人体验更重要"
+        }
+    },
+    {
+        q: "47. 你更欣赏哪种英雄叙事？",
+        axis: "coll",
+        options: {
+            A: "为国家或集体牺牲自我的烈士",
+            B: "在集体中发挥关键作用的中坚力量",
+            C: "坚持个人原则的异议者",
+            D: "孤独但自由的个体主义者"
+        }
+    },
+    {
+        q: "48. 对“大一统”的想法（无论是国家、组织还是社群）？",
+        axis: "coll",
+        options: {
+            A: "非常向往，统一才有力量",
+            B: "总体赞同，有利于协调资源",
+            C: "担心一统之下少有弹性",
+            D: "更喜欢小而分散的单元自我管理"
+        }
+    },
+    {
+        q: "49. 在团队任务中，你更希望自己是？",
+        axis: "coll",
+        options: {
+            A: "服从指挥、执行集体决策的一员",
+            B: "在规则内积极贡献的合作者",
+            C: "保留一点个人风格的成员",
+            D: "自由机动、按自己方式行动的人"
+        }
+    },
+    {
+        q: "50. 如果一个人公开宣称“只关心自己、不在乎社会”，你？",
+        axis: "coll",
+        options: {
+            A: "极度反感，觉得这是不道德的",
+            B: "不赞同，但觉得毕竟是个人选择",
+            C: "有点无语，但不会多管",
+            D: "某种程度上理解这种个人主义立场"
+        }
+    }
+];
+
+// ======================= 工具函数 ===========================
+
+function shuffle(array) {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+// 轴定义与文本标签
+const AXIS_META = {
+    econ: { left: "社会主义 / 经济左翼", right: "市场自由主义 / 经济右翼" },
+    auth: { left: "自由意志主义 / 反威权", right: "威权主义 / 强国家" },
+    nat:  { left: "全球主义 / 国际主义", right: "民族主义 / 国家中心" },
+    trad: { left: "进步主义 / 价值多元", right: "保守主义 / 传统主义" },
+    coll: { left: "个人主义 / 个人优先", right: "集体主义 / 集体优先" }
+};
+
+// 根据选项和轴，返回分值（负数 = 偏左，正数 = 偏右）
+function getAxisEffect(axis, choice) {
+    if (axis === "econ") {
+        const map = { A: -2, B: -1, C: 1, D: 2 };
+        return map[choice] || 0;
+    } else {
+        // 其他轴：A/B 偏右，C/D 偏左
+        const map = { A: 2, B: 1, C: -1, D: -2 };
+        return map[choice] || 0;
+    }
+}
+
+// ======================= 状态与渲染 ===========================
+
+let currentQuestions = [];
+let answers = [];
+let axisScores = {};
+let axisCounts = {};
+let currentIndex = 0;
+
+const questionTextEl = document.getElementById("question-text");
+const optionsEl = document.getElementById("options");
+const progressTextEl = document.getElementById("progress-text");
+const progressBarEl = document.getElementById("progress-bar");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
+const quizCard = document.getElementById("quiz-card");
+const resultCard = document.getElementById("result-card");
+const axisSummaryEl = document.getElementById("axis-summary");
+const weightsTableEl = document.getElementById("weights-table");
+
+function startQuiz(length) {
+    // 构造题目列表：在 50 题基础上复制、洗牌，直到达到指定数量
+    let qs = baseQuestions.slice();
+    while (qs.length < length) {
+        qs = qs.concat(shuffle(baseQuestions));
+    }
+    currentQuestions = qs.slice(0, length);
+    answers = new Array(length).fill(null);
+    axisScores = { econ: 0, auth: 0, nat: 0, trad: 0, coll: 0 };
+    axisCounts = { econ: 0, auth: 0, nat: 0, trad: 0, coll: 0 };
+    currentQuestions.forEach(q => {
+        axisCounts[q.axis] = (axisCounts[q.axis] || 0) + 1;
+    });
+    currentIndex = 0;
+    quizCard.style.display = "block";
+    resultCard.style.display = "none";
+    renderQuestion(currentIndex);
+}
+
+function renderQuestion(index) {
+    const q = currentQuestions[index];
+    questionTextEl.textContent = q.q;
+    optionsEl.innerHTML = "";
+
+    for (const key in q.options) {
+        const label = document.createElement("label");
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "option";
+        input.value = key;
+
+        if (answers[index] === key) {
+            input.checked = true;
+        }
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(key + ". " + q.options[key]));
+        optionsEl.appendChild(label);
+    }
+
+    progressTextEl.textContent = (index + 1) + " / " + currentQuestions.length;
+    const percent = ((index + 1) / currentQuestions.length) * 100;
+    progressBarEl.style.width = percent + "%";
+
+    prevBtn.disabled = index === 0;
+    if (index === currentQuestions.length - 1) {
+        nextBtn.textContent = "提交测试";
+    } else {
+        nextBtn.textContent = "下一题";
+    }
+}
+
+function getSelectedOption() {
+    const checked = document.querySelector('input[name="option"]:checked');
+    return checked ? checked.value : null;
+}
+
+prevBtn.addEventListener("click", () => {
+    const sel = getSelectedOption();
+    if (sel) answers[currentIndex] = sel;
+
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion(currentIndex);
+    }
+});
+
+nextBtn.addEventListener("click", () => {
+    const sel = getSelectedOption();
+    if (!sel) {
+        alert("请先选择一个选项再继续。");
+        return;
+    }
+    answers[currentIndex] = sel;
+
+    if (currentIndex === currentQuestions.length - 1) {
+        if (answers.includes(null)) {
+            if (!confirm("你还有题没做完，确定要直接提交吗？")) {
+                return;
+            }
+        }
+        calcResult();
+    } else {
+        currentIndex++;
+        renderQuestion(currentIndex);
+    }
+});
+
+// ======================= 结果计算 ===========================
+
+function calcResult() {
+    // 重新统计轴得分
+    axisScores = { econ: 0, auth: 0, nat: 0, trad: 0, coll: 0 };
+
+    answers.forEach((ans, i) => {
+        const q = currentQuestions[i];
+        if (!ans || !q) return;
+        const delta = getAxisEffect(q.axis, ans);
+        axisScores[q.axis] += delta;
+    });
+
+    renderAxisSummary();
+    renderWeightsTable();
+    resultCard.style.display = "block";
+    resultCard.scrollIntoView({ behavior: "smooth" });
+}
+
+function describeAxis(axisKey, score, count) {
+    const meta = AXIS_META[axisKey];
+    if (!count || count === 0) {
+        return `${meta.left} vs ${meta.right}：题目太少，无法判断。`;
+    }
+    const max = 2 * count; // 单题最大偏向 2
+    const rel = score / max; // -1 ~ 1
+    let degree;
+    let side;
+    if (rel > 0.6) { degree = "强烈"; side = meta.right; }
+    else if (rel > 0.2) { degree = "略偏"; side = meta.right; }
+    else if (rel < -0.6) { degree = "强烈"; side = meta.left; }
+    else if (rel < -0.2) { degree = "略偏"; side = meta.left; }
+    else { degree = "相对居中"; side = "两侧之间"; }
+
+    if (side === "两侧之间") {
+        return `${meta.left} ↔ ${meta.right}：<span class="axis-label-strong">整体比较温和/中间</span>（相对居中）。`;
+    } else if (side === meta.left) {
+        return `${meta.left} ↔ ${meta.right}：<span class="axis-label-strong">${degree}偏向「${meta.left}」</span>。`;
+    } else {
+        return `${meta.left} ↔ ${meta.right}：<span class="axis-label-strong">${degree}偏向「${meta.right}」</span>。`;
+    }
+}
+
+function renderAxisSummary() {
+    axisSummaryEl.innerHTML = "";
+    for (const axisKey of ["econ", "auth", "nat", "trad", "coll"]) {
+        const line = document.createElement("div");
+        line.className = "axis-summary-item";
+        line.innerHTML = describeAxis(axisKey, axisScores[axisKey], axisCounts[axisKey]);
+        axisSummaryEl.appendChild(line);
+    }
+
+    // 简单综合文字：粗略给个“你大概是什么路子”的 summary
+    const econ = axisScores.econ;
+    const auth = axisScores.auth;
+    const nat  = axisScores.nat;
+    const trad = axisScores.trad;
+    const coll = axisScores.coll;
+
+    let tags = [];
+
+    if (econ < 0) tags.push("经济偏左");
+    else if (econ > 0) tags.push("经济偏右");
+
+    if (auth > 0) tags.push("权威/秩序取向");
+    else if (auth < 0) tags.push("自由/反威权取向");
+
+    if (nat > 0) tags.push("民族/国家认同较强");
+    else if (nat < 0) tags.push("全球/国际主义倾向");
+
+    if (trad > 0) tags.push("价值偏保守");
+    else if (trad < 0) tags.push("价值偏进步");
+
+    if (coll > 0) tags.push("较重视集体");
+    else if (coll < 0) tags.push("较重视个人");
+
+    const summaryLine = document.createElement("div");
+    summaryLine.style.marginTop = "6px";
+    summaryLine.style.fontSize = "13px";
+    if (tags.length === 0) {
+        summaryLine.textContent = "综合来看：你的整体立场相对温和居中，在多个维度上没有特别突出的极端偏向。";
+    } else {
+        summaryLine.textContent = "综合来看：你的标签大致可以概括为——" + tags.join("，") + "（仅供娱乐参考）。";
+    }
+    axisSummaryEl.appendChild(summaryLine);
+
+    // 提示极端组合与历史极端主义（包括纳粹主义等）之间的关系——仅作为警示
+    const warningLine = document.createElement("div");
+    warningLine.style.marginTop = "6px";
+    warningLine.style.fontSize = "12px";
+    warningLine.style.color = "#aa0000";
+    if (auth > 0 && nat > 0 && trad > 0 && coll > 0) {
+        warningLine.textContent =
+            "提示：在政治学中，当「强威权 + 强民族主义 + 强保守 + 强集体」这些维度叠加得非常极端时，" +
+            "历史上曾出现过法西斯主义、纳粹主义等极端意识形态和政权，它们与侵略战争、种族屠杀等严重反人类罪行密切相关，" +
+            "已经被世界各国普遍谴责。本测试仅为光谱娱乐，不代表对任何极端主义的肯定。";
+    } else {
+        warningLine.textContent =
+            "提示：政治光谱的极端端点（例如极端民族主义、极端威权主义等）在历史上往往与暴力和灾难相连，" +
+            "包括法西斯主义、纳粹主义等，都应当被作为反面教材来警惕。本测试只做理论与娱乐参考。";
+    }
+    axisSummaryEl.appendChild(warningLine);
+}
+
+function renderWeightsTable() {
+    const rows = [];
+    const axisPairs = [
+        { key: "econ", leftName: AXIS_META.econ.left, rightName: AXIS_META.econ.right },
+        { key: "auth", leftName: AXIS_META.auth.left, rightName: AXIS_META.auth.right },
+        { key: "nat",  leftName: AXIS_META.nat.left,  rightName: AXIS_META.nat.right },
+        { key: "trad", leftName: AXIS_META.trad.left, rightName: AXIS_META.trad.right },
+        { key: "coll", leftName: AXIS_META.coll.left, rightName: AXIS_META.coll.right }
+    ];
+
+    axisPairs.forEach(({key, leftName, rightName}) => {
+        const raw = axisScores[key] || 0;
+        const leftRaw = raw < 0 ? -raw : 0;
+        const rightRaw = raw > 0 ? raw : 0;
+        const total = leftRaw + rightRaw;
+        const leftPct = total === 0 ? 50 : (leftRaw / total * 100);
+        const rightPct = total === 0 ? 50 : (rightRaw / total * 100);
+        rows.push({
+            axis: key,
+            leftName,
+            rightName,
+            leftRaw,
+            rightRaw,
+            leftPct: leftPct.toFixed(1),
+            rightPct: rightPct.toFixed(1)
+        });
+    });
+
+    let html = '<table><thead><tr>' +
+        '<th>维度</th>' +
+        '<th>左侧主义</th><th>左侧权重</th><th>左侧占比</th>' +
+        '<th>右侧主义</th><th>右侧权重</th><th>右侧占比</th>' +
+        '</tr></thead><tbody>';
+
+    rows.forEach(r => {
+        html += `<tr>
+            <td>${r.axis}</td>
+            <td>${r.leftName}</td>
+            <td>${r.leftRaw}</td>
+            <td>${r.leftPct}%</td>
+            <td>${r.rightName}</td>
+            <td>${r.rightRaw}</td>
+            <td>${r.rightPct}%</td>
+        </tr>`;
+    });
+
+    html += "</tbody></table>";
+    weightsTableEl.innerHTML = html;
+}
+
+// ======================= 二维码 ===========================
+
+function makeQRCode() {
+    const url = window.location.href || "http://example.com/your-quiz-url";
+    new QRCode(document.getElementById("qrcode"), {
+        text: url,
+        width: 160,
+        height: 160
+    });
+}
+makeQRCode();
+
+</script>
+</body>
+</html>
